@@ -1,7 +1,7 @@
 #BusSchedule.py
-#Name:
-#Date:
-#Assignment:
+#Name:Kaitlyn Oswald
+#Date:10/5/25
+#Assignment:Homework 2
 
 import datetime
 from selenium import webdriver
@@ -38,11 +38,19 @@ def loadTestPage():
 
   return contents
 
+def getHours(time):
+
+  Take a time in the format "HH:MM AM and return hour in 24-hour format"
+
+  return 21
 
 def main():
-  url = "https://myride.ometro.com/Schedule?stopCode=2269&routeNumber=11&directionName=EAST"
+  direction = "EAST"
+
+  url = "https://myride.ometro.com/Schedule?stopCode=2269&routeNumber=11&directionName=" + direction
   #c1 = loadURL(url) #loads the web page
-  c1 = loadTestPage() #loads the test page
-  print(c1)
+  #c1 = loadTestPage() #loads the test page
+  #print(c1)
+  time = "9:49 AM"
 
 main()
