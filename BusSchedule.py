@@ -39,26 +39,30 @@ def loadTestPage():
   return contents
 
 def getHours(time):
-  now = datetime.datetime.now()
-  currentHour = (now.hour - 5) % 24
-  currentMinute = now.minute
-
-  print (currentHour, currentMinute)
-  #if hour 
-
-  #hour = hour + 12
+  
+  #now = datetime.datetime.now()
+  time2 = datetime.datetime.strptime(time, "%H:%M%p")
+ 
+  currentHour = (time2.hour - 6) % 24
 
 
   "Take a time in the format HH:MM AM and return hour in 24-hour format"
 
-  return 21
+  return currentHour
 
-#def getMinutes(time):
+def getMinutes(time):
 #Given a string in the form "HH:MM AM/PM" will return just the minutes portion.
+#want to ignore HH and "":"
+#currentMinute = now.minute
+  time2 = datetime.datetime.strptime(time, "%H:%M%p")
+ 
+  currentMinute = time2.minute
+  return currentMinute
 
 
 #def isLater(time1, time2):
 #Provide True or False if time 1 is later than time 2
+
 #hour1 = getHours(time1)
 #minutes1 = getMinutes(time1)
 #hour2 = getHours(time2)
@@ -75,16 +79,43 @@ def getHours(time):
 
 def main():
   direction = "EAST"
+  routeNo = "11"
+  stopNo = "2269"
 
-  #url = "https://myride.ometro.com/Schedule?stopCode=2269&routeNumber=11&directionName=" + direction
-  url = "https://myride.ometro.com/Schedule?stopCode=3060&date=2025-10-20&routeNumber=18&directionName="+ direction
-  c1 = loadURL(url) #loads the web page
-  #c1 = loadTestPage() #loads the test page
-  print(c1)
-  time = "9:49 PM"
 
-  #print("Current time:" + )
-  #print("The next bus will arrive in" +)
-  #print("The following bus will arrive in " + )
+  url = "https://myride.ometro.com/Schedule?stopCode=" + stopNo + "&routeNumber=" + routeNo + "&directionName=" + direction
+  #c1 = loadURL(url) #loads the web page
+  c1 = loadTestPage() #loads the test page
+  #print(c1)
+  busList = c1.split("\n")
+  busTimes = []
+
+  for testLine in busList:
+    #print(f"{testLine}  {testLine.count(":")}")
+    if (testLine.count(":") == 1) and ((len(testLine) == 6) or (len(testLine) == 7)):
+      #print("append:" + testLine)
+      busTimes.append(testLine)
+  
+  #print("busTimes")
+  #for busTime in busTimes:
+  #  print(busTime)
+
+
+
+  #time = "9:49PM"
+  #time = busTimes[4]
+  #print(getHours(time))
+  #print(getMinutes(time))
+  
+  #print(datetime.datetime.astimezone)
+  currentDT = datetime.datetime.now()
+  if currentDT.hour >= 12:
+    time = str((currentDT.hour - 5) % 12) + ":" + str(currentDT.minute) + "PM"
+  else:
+    time = str((currentDT.hour - 5) % 12) + ":" + str(currentDT.minute) + "AM"
+
+  print("Current time:" +  time)
+  #print("The next bus will arrive in" + getMinutes(time))
+  #print("The following bus will arrive in " + getMinutes(time))
   
 main()
