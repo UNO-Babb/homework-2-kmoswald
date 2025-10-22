@@ -38,50 +38,50 @@ def loadTestPage():
 
   return contents
 
-def getHours(time):
+def getHours(time): #Take a time in the format HH:MM AM and return hour in 24-hour format
   
-  #now = datetime.datetime.now()
   time2 = datetime.datetime.strptime(time, "%H:%M%p")
  
   currentHour = (time2.hour - 6) % 24
 
-
-  "Take a time in the format HH:MM AM and return hour in 24-hour format"
-
   return currentHour
 
-def getMinutes(time):
-#Given a string in the form "HH:MM AM/PM" will return just the minutes portion.
-#want to ignore HH and "":"
-#currentMinute = now.minute
+def getMinutes(time): #Given a string in the form "HH:MM AM/PM" will return just the minutes portion.
   time2 = datetime.datetime.strptime(time, "%H:%M%p")
  
   currentMinute = time2.minute
   return currentMinute
 
+def minutesLater(time1, time2): #comparing two time strings to see how many minutes apart they are
+  
+  hour1 = datetime.datetime.strptime(time1, "%I:%M%p").hour
+  minutes1 = getMinutes(time1)
+  minutes1 = minutes1 + (hour1 * 60)
 
-#def isLater(time1, time2):
-#Provide True or False if time 1 is later than time 2
+  hour2 = datetime.datetime.strptime(time2, "%I:%M%p").hour
+  minutes2 = getMinutes(time2)
+  minutes2 = minutes2 + (hour2 * 60) 
 
-#hour1 = getHours(time1)
-#minutes1 = getMinutes(time1)
-#hour2 = getHours(time2)
-#minutes2 = getMinutes(time2)
-#if hour1 > hour2
-  #return True
-#elif hour1 < hour2
-  #return False
-#else
-  #if minute1 > minute2:
-    #return True
-   #else
-    #return False 
+  minutesDiff = minutes1 - minutes2
+  return minutesDiff
+
+def nextBusTime(busTimeList, myTime): #provided the following bus arrival 
+
+  foundTime = ""
+  for busTime in busTimeList:
+    if minutesLater(myTime, busTime) < 0:
+      foundTime = busTime
+      break
+      
+  if foundTime == "":
+    foundTime = busTimeList[0]
+
+  return foundTime 
 
 def main():
   direction = "EAST"
   routeNo = "11"
   stopNo = "2269"
-
 
   url = "https://myride.ometro.com/Schedule?stopCode=" + stopNo + "&routeNumber=" + routeNo + "&directionName=" + direction
   #c1 = loadURL(url) #loads the web page
@@ -90,32 +90,28 @@ def main():
   busList = c1.split("\n")
   busTimes = []
 
-  for testLine in busList:
-    #print(f"{testLine}  {testLine.count(":")}")
+  for testLine in busList: #filter out lines from the testPage that were not times
     if (testLine.count(":") == 1) and ((len(testLine) == 6) or (len(testLine) == 7)):
-      #print("append:" + testLine)
       busTimes.append(testLine)
   
-  #print("busTimes")
-  #for busTime in busTimes:
-  #  print(busTime)
-
-
-
-  #time = "9:49PM"
-  #time = busTimes[4]
-  #print(getHours(time))
-  #print(getMinutes(time))
-  
-  #print(datetime.datetime.astimezone)
   currentDT = datetime.datetime.now()
-  if currentDT.hour >= 12:
-    time = str((currentDT.hour - 5) % 12) + ":" + str(currentDT.minute) + "PM"
-  else:
-    time = str((currentDT.hour - 5) % 12) + ":" + str(currentDT.minute) + "AM"
+  currentLocalTime = datetime.time((currentDT.hour - 5) % 24, currentDT.minute)
 
-  print("Current time:" +  time)
-  #print("The next bus will arrive in" + getMinutes(time))
-  #print("The following bus will arrive in " + getMinutes(time))
+  currentLocalTimeStr = currentLocalTime.strftime("%I:%M%p")
+  print("Current time: " +  currentLocalTimeStr)
+  
+  nextBus = nextBusTime(busTimes, currentLocalTimeStr)
+  minLater = minutesLater(nextBus, currentLocalTimeStr) 
+  print(f"The next bus will arrive in {minLater} minutes.")
+
+  followingBus = "" #give the user the second bus option
+  nextBusIndex = busTimes.index(nextBus)
+
+  if (nextBusIndex < len(busTimes) - 1): #if the current bus is at the last time on the list, start the list over
+    followingBus = busTimes[nextBusIndex + 1]
+  else:
+    followingBus = busTimes[0]
+
+  print(f"The following bus will arrive in {str(abs(minutesLater(followingBus, nextBus)))} minutes.")
   
 main()
